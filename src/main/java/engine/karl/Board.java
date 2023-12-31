@@ -1,167 +1,94 @@
 package engine.karl;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class Board {
 
-    private long whitePawns;
-    private long whiteKnights;
-    private long whiteBishops;
-    private long whiteRooks;
-    private long whiteQueens;
-    private long whiteKing;
-    private long blackPawns;
-    private long blackKnights;
-    private long blackBishops;
-    private long blackRooks;
-    private long blackQueens;
-    private long blackKing;
+    public long whitePawns=0L,whiteKnights=0L,whiteBishops=0L,whiteRooks=0L,whiteQueens=0L,whiteKing=0L,blackPawns=0L,blackKnights=0L,blackBishops=0L,blackRooks=0L,blackQueens=0L,blackKing=0L;
 
     private boolean whiteTurns;
     private int castlingRights;
     private int enPassantSquares;
 
-    public long getAllPieces(){
-        return whitePawns | whiteKnights | whiteBishops | whiteRooks | whiteQueens | whiteKing | blackPawns | blackKnights | blackBishops | blackRooks | blackQueens | blackKing;
+    public void initiateStandardChess() {
+        String[][] chessboard ={
+                {"r","n","b","q","k","b","n","r"},
+                {"p","p","p","p","p","p","p","p"},
+                {" "," "," "," "," "," "," "," "},
+                {" "," "," "," "," "," "," "," "},
+                {" "," "," "," "," "," "," "," "},
+                {" "," "," "," "," "," "," "," "},
+                {"P","P","P","P","P","P","P","P"},
+                {"R","N","B","Q","K","B","N","R"}
+        };
+        arrayToBitboards(chessboard);
     }
 
-    public long getWhitePawns() {
-        return whitePawns;
-    }
-
-    public long getWhiteKnights() {
-        return whiteKnights;
-    }
-
-    public long getWhiteBishops() {
-        return whiteBishops;
-    }
-
-    public long getWhiteRooks() {
-        return whiteRooks;
-    }
-
-    public long getWhiteQueens() {
-        return whiteQueens;
-    }
-
-    public long getWhiteKing() {
-        return whiteKing;
-    }
-
-    public long getBlackPawns() {
-        return blackPawns;
-    }
-
-    public long getBlackKnights() {
-        return blackKnights;
-    }
-
-    public long getBlackBishops() {
-        return blackBishops;
-    }
-
-    public long getBlackRooks() {
-        return blackRooks;
-    }
-
-    public long getBlackQueens() {
-        return blackQueens;
-    }
-
-    public long getBlackKing() {
-        return blackKing;
-    }
-
-    public Board(){
-        initialiseBoard();
-    }
-
-
-    private void initialiseBoard(){
-        whitePawns = Long.parseLong("0000000000000000000000000000000000000000000000001111111100000000", 2);
-        whiteKnights = Long.parseLong("0000000000000000000000000000000000000000000000000000000001000010", 2);
-        whiteBishops = Long.parseLong("0000000000000000000000000000000000000000000000000000000000100100", 2);
-        whiteRooks = Long.parseLong("0000000000000000000000000000000000000000000000000000000010000001", 2);
-        whiteQueens = Long.parseLong("0000000000000000000000000000000000000000000000000000000000010000", 2);
-        whiteKing = Long.parseLong("0000000000000000000000000000000000000000000000000000000000001000", 2);
-
-        blackPawns = Long.parseLong("0000000011111111000000000000000000000000000000000000000000000000", 2);
-        blackKnights = Long.parseLong("0100001000000000000000000000000000000000000000000000000000000000", 2);
-        blackBishops = Long.parseLong("0010010000000000000000000000000000000000000000000000000000000000", 2);
-        blackRooks = Long.parseLong("1000000100000000000000000000000000000000000000000000000000000000", 2);
-        blackQueens = Long.parseLong("0001000000000000000000000000000000000000000000000000000000000000", 2);
-        blackKing = Long.parseLong("0000100000000000000000000000000000000000000000000000000000000000", 2);
-    }
-
-    private long switchBit(long bits, int position){
-        return bits ^ (1L << position);
-    }
-
-    private boolean checkIfBitIsSet(long bits, int position){
-        return ((bits & (1L << position)) != 0);
-    }
-
-    private long invertAllBits(long bits){
-        return ~bits;
-    }
-
-    private long deleteAllBitsExceptOne(long bits, int position){
-        return bits & (1L << position);
-    }
-
-    private long shiftToLeft(long bits, int shifts){
-        return bits << shifts;
-    }
-
-    private long shiftToRight(long bits, int shifts){
-        return bits >> shifts;
-    }
-
-    private boolean whiteMated(){
-        return false;
-    }
-
-    private boolean blackMated(){
-        return false;
-    }
-
-    private boolean checkWhite(){
-        return false;
-    }
-
-    private boolean checkBlack(){
-        return false;
-    }
-
-    private Set<Long> getLegalWhitePawnMoves(long whitePawns){
-        Set<Long> LegalWhitePawnMoves = new HashSet<>();
-
-        long firstPawn = deleteAllBitsExceptOne(whitePawns, (int) (Math.log((double) Long.highestOneBit(whitePawns)) / Math.log(2)));
-        long allPieces = getAllPieces();
-        boolean startingPosition = false;
-        if (firstPawn >= Math.pow(2, 8) | firstPawn <= Math.pow(2, 15)){
-            //Doppelzug möglich
-            startingPosition = true;
+    private void arrayToBitboards(String[][] chessboard){
+        String binary;
+        for (int i = 0; i < 64; i++){
+            binary = "0000000000000000000000000000000000000000000000000000000000000000";
+            binary = binary.substring(i+1)+"1"+binary.substring(0, i);
+            switch (chessboard[i/8][i%8]){
+                case "P": whitePawns+=convertStringToBitboard(binary); break;
+                case "R": whiteRooks+=convertStringToBitboard(binary); break;
+                case "N": whiteKnights+=convertStringToBitboard(binary); break;
+                case "B": whiteBishops+=convertStringToBitboard(binary); break;
+                case "Q": whiteQueens+=convertStringToBitboard(binary); break;
+                case "K": whiteKing+=convertStringToBitboard(binary); break;
+                case "p": blackPawns+=convertStringToBitboard(binary); break;
+                case "r": blackRooks+=convertStringToBitboard(binary); break;
+                case "n": blackKnights+=convertStringToBitboard(binary); break;
+                case "b": blackBishops+=convertStringToBitboard(binary); break;
+                case "q": blackQueens+=convertStringToBitboard(binary); break;
+                case "k": blackKing+=convertStringToBitboard(binary); break;
+            }
         }
-
-        long oneMoveForward = shiftToLeft(firstPawn, 8);
-
-
-
-
-
-
-        return LegalWhitePawnMoves;
     }
 
-    private void GameRunner(){
+    private long convertStringToBitboard(String binary){
+        if (binary.charAt(0) == '0'){
+            return Long.parseLong(binary, 2);
+        } else {
+            return Long.parseLong("1"+binary.substring(2), 2)*2;
+        }
+    }
+
+    public boolean whiteMated(){
+        if (blackKingInCheck()){
+            return !blackHasLegalMove();
+        }
+        return false;
+    }
+
+    public boolean blackMated(){
+        if (whiteKingInCheck()){
+            return !whiteHasLegalMove();
+        }
+        return false;
+    }
+
+    public boolean blackKingInCheck(){
+        return (blackKing & getPossibleWhiteRookMoves() & getPossibleWhiteKnightMoves()
+                & getPossibleWhiteBishopMoves() & getPossibleWhitePawnAttacks()
+                & getPossibleWhiteQueenMoves()) == 1;
+    }
+
+    public boolean whiteKingInCheck(){
+        return (whiteKing & getPossibleBlackRookMoves() & getPossibleBlackKnightMoves()
+                & getPossibleBlackBishopMoves() & getPossibleBlackPawnAttacks()
+                & getPossibleBlackQueenMoves()) == 1;
+    }
+
+    public boolean blackHasLegalMove(){
 
     }
 
+    public boolean whiteHasLegalMove(){
 
+    }
 
+    public long getPossibleWhiteRookMoves(){
+
+    }
 
 
 }

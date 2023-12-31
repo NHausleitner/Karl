@@ -1,7 +1,12 @@
 package engine.karl;
 
 public class Evaluation {
-    private Board board;
+
+    public static double evaluate(Board board) {
+        if (board.whiteMated()) return 1000; // white won
+        if (board.blackMated()) return -1000; // black won
+
+    }
 
 
 }

@@ -97,70 +97,155 @@ public class Board {
     }
 
     public long getPossibleWhiteRookMoves(){
-
-        // Beispiel: "00000000 00000000 00000000 00000000 01000000 00000000 00000000 00000000" wird zu
-        //           "01000000 01000000 01000000 01000000 10111111 01000000 01000000 01000000" (theoretisch bei freiem Board)
-        // ABER
-        // 1. Steht eine weiße Figur im Weg?
-        // 2. Steht eine schwarze Figur im Weg?
-
-        // Idee: Alle Türme in einzelne longs zerlegen und einzeln betrachten.
+        List<Long> legalMovesOfAllWhiteRooks = new ArrayList<>();
         long whiteRooksCopy = whiteRooks;
-        List<Long> whiteRooksSplittet = splitLong(whiteRooksCopy);
-
-        List<Long> legalMoves = new ArrayList<>();
-        long setPieces = getAllPieces();
-
-        for (int a = 0; a < whiteRooksSplittet.size(); a++){
-
-            long rook = whiteRooksSplittet.get(a);
-            long leadingZeros = Long.numberOfLeadingZeros(rook);
-            long startingPosition = 63 - leadingZeros;
-            long rowOfStartingPosition = startingPosition / 8;
-            long columnOfStartingPosition = startingPosition % 8;
-
-            // vertikal nach oben
-            for (int i = 1; i <= 7 - rowOfStartingPosition; i++){
-                long target = startingPosition + (8 * i);
-                long rowOfTarget = target / 8;
-                long columnOfTarget = target % 8;
-                if ((target & setPieces) == 1){
-                    if ((target & blackKing) == 1){
-                        legalMoves.add(target);
-                    } else { // !!!!
-                        break;
-                    }
-                } else if ((target & setPieces) == 0) {
-                    legalMoves.add(target);
-                }
-            }
-
-            // vertikal nach unten
-            for (int i = 1; i <=rowOfStartingPosition; i++){
-                long target = startingPosition - (8 * i);
-                long rowOfTarget = target / 8;
-                long columnOfTarget = target % 8;
-                if ((target & setPieces) == 1){
-                    if ((target & blackKing) == 1){
-                        legalMoves.add(target);
-                    } else { // !!!!
-                        break;
-                    }
-                } else if ((target & setPieces) == 0) {
-                    legalMoves.add(target);
-                }
-            }
-
+        List<Long> whiteRooksSplit = splitLong(whiteRooksCopy);
+        for (Long l : whiteRooksSplit) {
+            legalMovesOfAllWhiteRooks.add(determinePossibleAndLegalMoves(-1, 0, l, true)); // vertical up
+            legalMovesOfAllWhiteRooks.add(determinePossibleAndLegalMoves(1, 0, l, true)); // vertical down
+            legalMovesOfAllWhiteRooks.add(determinePossibleAndLegalMoves(0, -1, l, true)); // horizontal left
+            legalMovesOfAllWhiteRooks.add(determinePossibleAndLegalMoves(0, 1, l, true)); // horizontal right
         }
-
-
-
-
         long sum = 0L;
-        for (Long l: legalMoves){
+        for (Long l: legalMovesOfAllWhiteRooks){
             sum = sum | l;
         }
+        return sum;
+    }
+    
+    public long getPossibleBlackRookMoves(){
+        List<Long> legalMovesOfAllBlackRooks = new ArrayList<>();
+        long blackRooksCopy = blackRooks;
+        List<Long> blackRooksSplit = splitLong(blackRooksCopy);
+        for (Long l : blackRooksSplit) {
+            legalMovesOfAllBlackRooks.add(determinePossibleAndLegalMoves(-1, 0, l, true)); // vertical up
+            legalMovesOfAllBlackRooks.add(determinePossibleAndLegalMoves(1, 0, l, true)); // vertical down
+            legalMovesOfAllBlackRooks.add(determinePossibleAndLegalMoves(0, -1, l, true)); // horizontal left
+            legalMovesOfAllBlackRooks.add(determinePossibleAndLegalMoves(0, 1, l, true)); // horizontal right
+        }
+        long sum = 0L;
+        for (Long l: legalMovesOfAllBlackRooks){
+            sum = sum | l;
+        }
+        return sum;
+    }
 
+    public long getPossibleWhiteBishopMoves(){
+        List<Long> legalMovesOfAllWhiteBishops = new ArrayList<>();
+        long whiteBishopsCopy = whiteBishops;
+        List<Long> whiteBishopsSplit = splitLong(whiteBishopsCopy);
+        for (Long l : whiteBishopsSplit) {
+            legalMovesOfAllWhiteBishops.add(determinePossibleAndLegalMoves(-1, -1, l, true)); // diagonal left up
+            legalMovesOfAllWhiteBishops.add(determinePossibleAndLegalMoves(1, -1, l, true)); // diagonal left down
+            legalMovesOfAllWhiteBishops.add(determinePossibleAndLegalMoves(-1, 1, l, true)); // diagonal right up
+            legalMovesOfAllWhiteBishops.add(determinePossibleAndLegalMoves(1, 1, l, true)); // diagonal right down
+        }
+        long sum = 0L;
+        for (Long l: legalMovesOfAllWhiteBishops){
+            sum = sum | l;
+        }
+        return sum;
+    }
+
+    public long getPossibleBlackBishopMoves(){
+        List<Long> legalMovesOfAllBlackBishops = new ArrayList<>();
+        long blackBishopsCopy = blackBishops;
+        List<Long> blackBishopsSplit = splitLong(blackBishopsCopy);
+        for (Long l : blackBishopsSplit) {
+            legalMovesOfAllBlackBishops.add(determinePossibleAndLegalMoves(-1, -1, l, true)); // diagonal left up
+            legalMovesOfAllBlackBishops.add(determinePossibleAndLegalMoves(1, -1, l, true)); // diagonal left down
+            legalMovesOfAllBlackBishops.add(determinePossibleAndLegalMoves(-1, 1, l, true)); // diagonal right up
+            legalMovesOfAllBlackBishops.add(determinePossibleAndLegalMoves(1, 1, l, true)); // diagonal right down
+        }
+        long sum = 0L;
+        for (Long l: legalMovesOfAllBlackBishops){
+            sum = sum | l;
+        }
+        return sum;
+    }
+
+    public long getPossibleWhiteQueenMoves(){
+        List<Long> legalMovesOfAllWhiteQueens = new ArrayList<>();
+        long whiteQueensCopy = whiteQueens;
+        List<Long> whiteQueensSplit = splitLong(whiteQueensCopy);
+        for (Long l : whiteQueensSplit) {
+            legalMovesOfAllWhiteQueens.add(determinePossibleAndLegalMoves(-1, -1, l, true)); // diagonal left up
+            legalMovesOfAllWhiteQueens.add(determinePossibleAndLegalMoves(1, -1, l, true)); // diagonal left down
+            legalMovesOfAllWhiteQueens.add(determinePossibleAndLegalMoves(-1, 1, l, true)); // diagonal right up
+            legalMovesOfAllWhiteQueens.add(determinePossibleAndLegalMoves(1, 1, l, true)); // diagonal right down
+            legalMovesOfAllWhiteQueens.add(determinePossibleAndLegalMoves(-1, 0, l, true)); // vertical up
+            legalMovesOfAllWhiteQueens.add(determinePossibleAndLegalMoves(1, 0, l, true)); // vertical down
+            legalMovesOfAllWhiteQueens.add(determinePossibleAndLegalMoves(0, -1, l, true)); // horizontal left
+            legalMovesOfAllWhiteQueens.add(determinePossibleAndLegalMoves(0, 1, l, true)); // horizontal right
+        }
+        long sum = 0L;
+        for (Long l: legalMovesOfAllWhiteQueens){
+            sum = sum | l;
+        }
+        return sum;
+    }
+
+    public long getPossibleBlackQueenMoves(){
+        List<Long> legalMovesOfAllBlackQueens = new ArrayList<>();
+        long blackQueensCopy = blackQueens;
+        List<Long> blackQueensSplit = splitLong(blackQueensCopy);
+        for (Long l : blackQueensSplit) {
+            legalMovesOfAllBlackQueens.add(determinePossibleAndLegalMoves(-1, -1, l, true)); // diagonal left up
+            legalMovesOfAllBlackQueens.add(determinePossibleAndLegalMoves(1, -1, l, true)); // diagonal left down
+            legalMovesOfAllBlackQueens.add(determinePossibleAndLegalMoves(-1, 1, l, true)); // diagonal right up
+            legalMovesOfAllBlackQueens.add(determinePossibleAndLegalMoves(1, 1, l, true)); // diagonal right down
+            legalMovesOfAllBlackQueens.add(determinePossibleAndLegalMoves(-1, 0, l, true)); // vertical up
+            legalMovesOfAllBlackQueens.add(determinePossibleAndLegalMoves(1, 0, l, true)); // vertical down
+            legalMovesOfAllBlackQueens.add(determinePossibleAndLegalMoves(0, -1, l, true)); // horizontal left
+            legalMovesOfAllBlackQueens.add(determinePossibleAndLegalMoves(0, 1, l, true)); // horizontal right
+        }
+        long sum = 0L;
+        for (Long l: legalMovesOfAllBlackQueens){
+            sum = sum | l;
+        }
+        return sum;
+    }
+
+    public long getPossibleWhiteKnightMoves(){
+
+    }
+
+    public long getPossibleBlackKnightMoves(){
+
+    }
+
+    public long getPossibleWhitePawnAttacks(){
+
+    }
+
+    public long getPossibleBlackPawnAttacks(){
+
+    }
+
+    private long determinePossibleAndLegalMoves(long rowOffset, long columnOffset, long bitboard, boolean possibleNotLegal) {
+        List<Long> legalMovesForOnePiece = new ArrayList<>();
+        long setPieces = getAllPieces();
+        long leadingZeros = Long.numberOfLeadingZeros(bitboard);
+        long startingPosition = 63 - leadingZeros;
+        long rowOfStartingPosition = startingPosition / 8;
+        long columnOfStartingPosition = startingPosition % 8;
+        for (int i = 1; rowOfStartingPosition + i * rowOffset >= 0 && rowOfStartingPosition + i * rowOffset < 8 && columnOfStartingPosition + i * columnOffset >= 0 && columnOfStartingPosition + i * columnOffset < 8; i++) {
+            long targetDecimal = (rowOfStartingPosition + i * rowOffset) * 8 + (columnOfStartingPosition + i * columnOffset);
+            long targetBinary = 1L << targetDecimal;
+            if ((targetBinary & setPieces) == 1){
+                if ((targetBinary & blackKing) == 1){
+                    legalMovesForOnePiece.add(targetBinary);
+                } else { // !!!!
+                    break;
+                }
+            } else if ((targetBinary & setPieces) == 0) {
+                legalMovesForOnePiece.add(targetBinary);
+            }
+        }
+        long sum = 0L;
+        for (Long l: legalMovesForOnePiece){
+            sum = sum | l;
+        }
         return sum;
     }
 
@@ -177,9 +262,6 @@ public class Board {
         }
         return result;
     }
-
-
-
 
 
 }
